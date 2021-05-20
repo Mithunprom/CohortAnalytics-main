@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <script src="https://d3js.org/d3.v3.js"></script>
+  <title>JS Bin</title>
+    <style>
+body {
+    background-color:#F0FFF0;
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+    height: 100%;
+}
+
+.widget {
+    margin: 0 auto;
+    width:350px;
+    margin-top:50px;
+    background-color:#fff;
+    background-color: #222D3A;
+    border-radius: 5px;
+    box-shadow: 1px 1px 4px 0px rgba(0,0,0,0.3);
+
+}
+
+.header{
+    background-color: #eee;
+    height:40px;
+    color:#555;
+    text-align: center;
+    line-height: 40px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    font-weight: 400;
+    font-size: 1.5em;
+    text-shadow: 1px 1px #fff;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.chart-container{
+    padding:25px;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+.xAxis.tick line{
+  visibility:hidden;
+}
+.grid .tick {
+    stroke: lightgrey;
+    opacity: 0.7;
+}
+.grid path {
+      stroke-width: 0;
+}
+
+    </style>
+</head>
+<body>
+
+<script>
+var data = [
+    {
+      "Groups": "0%",
+      "Off Track Students": 0,
+      "On Track Students": 0,
+      "Students Ahead": 0,
+    },
+    {
+      "Groups": "5%",
+      "Off Track Students": 5,
+      "On Track Students": 10,
+      "Students Ahead": 5,
+    },
+    {
+      "Groups": "10%",
+      "Off Track Students": 10,
+      "On Track Students": 22,
+      "Students Ahead": 22,
+    },
+    {
+      "Groups": "15%",
+      "Off Track Students": 12,
+      "On Track Students": 52,
+      "Students Ahead": 32,
+    },
+    {
+      "Groups": "20%",
+      "Off Track Students": 12,
+      "On Track Students": 52,
+      "Students Ahead": 12,
+    },
+    {
+      "Groups": "25%",
+      "Off Track Students": 40,
+      "On Track Students": 30,
+      "Students Ahead": 12,
+    },
+    {
+      "Groups": "30%",
+      "Off Track Students": 29,
+      "On Track Students": 30,
+      "Students Ahead": 12,
+    },
+    {
+      "Groups": "35%",
+      "Off Track Students": 10,
+      "On Track Students": 44,
+      "Students Ahead": 12,
+    },
+    {
+      "Groups": "40%",
+      "Off Track Students": 12,
+      "On Track Students": 45,
+      "Students Ahead": 12,
+    },
+    {
+      "Groups": "45%",
+      "Off Track Students": 4,
+      "On Track Students": 12,
+      "Students Ahead": 4,
+    },
+    {
+      "Groups": "50%",
+      "Off Track Students": 5,
+      "On Track Students": 55,
+      "Students Ahead": 22,
+    },
+    {
+      "Groups": "55%",
+      "Off Track Students": 4,
+      "On Track Students": 11,
+      "Students Ahead": 24,
+    },
+    {
+      "Groups": "60%",
+      "Off Track Students": 12,
+      "On Track Students": 42,
+      "Students Ahead": 12,
+    },
+    {
+      "Groups": "65%",
+      "Off Track Students": 2,
+      "On Track Students": 32,
+      "Students Ahead": 32,
+    },
+    {
+      "Groups": "70%",
+      "Off Track Students": 12,
+      "On Track Students": 42,
+      "Students Ahead": 12,
+    },
+    {
+      "Groups": "75%",
+      "Off Track Students": 32,
+      "On Track Students": 12,
+      "Students Ahead": 52,
+    },
+    {
+      "Groups": "80%",
+      "Off Track Students": 2,
+      "On Track Students": 42,
+      "Students Ahead": 2,
+    },
+    {
+      "Groups": "85%",
+      "Off Track Students": 12,
+      "On Track Students": 42,
+      "Students Ahead": 12,
+    },
+    {
+      "Groups": "90%",
+      "Off Track Students": 1,
+      "On Track Students": 2,
+      "Students Ahead": 42,
+    },
+    {
+      "Groups": "95%",
+      "Off Track Students": 12,
+      "On Track Students": 42,
+      "Students Ahead": 12,
+    },
+    {
+      "Groups": "100%",
+      "Off Track Students": 10,
+      "On Track Students": 10,
+      "Students Ahead": 10,
+    }
+  ];
+  
+  var margin = {top: 120, right: 150, bottom: 60, left: 150},
+      width = 1200 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
+    var char=['0%','5%','10%','15%','20%','25%','30%','35%','40%','45%','50%','55%','60%','65%','70%','75%','80%','85%','90%','95%','100%'];
+
+    var x = d3.scale.ordinal()
+      .rangeRoundBands([-35, width+100], .10)
+      ; //.23
+  
+  var y = d3.scale.linear()
+      .rangeRound([height, 0]);
+  
+  //var color = d3.scale.category20b();
+  var color=color = d3.scale.ordinal()
+    .range(["#DC143C", "#5F9EA0", "#008B8B"]);
+
+  var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom")
+      //.tickFormat("")
+      .tickValues(char)
+      .tickSize(0)
+      ;
+  
+  var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left")
+      .tickFormat(d3.format(".2s"));
+  
+  var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
+    color.domain(d3.keys(data[0]).filter(function(key) { return key !== "Groups"; }));
+  
+    data.forEach(function(d) {
+      var y0 = 0;
+      d.ages = color.domain().map(function(name) { return {name: name, y0: y0, y1: y0 += +d[name]}; });
+      d.total = d.ages[d.ages.length - 1].y1;
+    });
+function make_x_axis() {        
+    return d3.svg.axis()
+        .scale(y)
+         .orient("bottom")
+         .ticks(15)
+}
+
+function make_y_axis() {        
+    return d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .ticks(15)
+}
+svg.append("g")         
+        .attr("class", "grid")
+        .attr("transform", "translate(0," + height + ")")
+        .call(make_x_axis()
+            .tickSize(-height, 0, 0)
+            .tickFormat("")
+        )
+svg.append("g")         
+        .attr("class", "grid")
+        .attr("transform", "translate(350," + height + ")")
+        .call(make_x_axis()
+            .tickSize(-height, 0, 0)
+            .tickFormat("")
+        )
+svg.append("g")         
+        .attr("class", "grid")
+        .call(make_y_axis()
+            .tickSize(-width-120, 0, 0)
+            .tickFormat("")
+        )
+svg.append("g")         
+        .attr("class", "grid")
+        .attr("transform", "translate(700," + height + ")")
+        .call(make_x_axis()
+            .tickSize(-height, 0, 0)
+            .tickFormat("")
+        )
+    //data.sort(function(a, b) { return b.total - a.total; });
+  
+    x.domain(data.map(function(d) { return d.Groups; }));
+    y.domain([0, d3.max(data, function(d) { return d.total; })]);
+  
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(25," + height + ")")
+        .call(xAxis)
+        .append("text")
+        .attr("y", 25)
+        .attr("x", 600)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Requirements Completed")
+        ;
+  
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+      .append("text")
+        .attr("y", -55)
+        .attr("x", -100)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Number of Students")
+        .attr("transform", "translate(0,100)")
+        .attr("transform", "rotate(-90)");
+
+  
+
+    var state = svg.selectAll(".state")
+        .data(data)
+        .enter().append("g")
+        .attr("class", "g")
+        .attr("transform", function(d) { return "translate(" + x(d.Groups) + ",0)"; });
+  
+    state.selectAll("rect")
+        .data(function(d) { return d.ages; })
+        .enter().append("rect")
+        .attr("width", x.rangeBand())
+        .attr("y", function(d) { return y(d.y1); })
+        .attr("height", function(d) { return y(d.y0) - y(d.y1); })
+        .style("fill", function(d) { return color(d.name); });
+  
+        var keys1=["Students ahead",'On Track Students','On Track Students']
+    
+        var legend = svg.selectAll(".legend")
+        .data(color.domain().slice().reverse())
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) { return "translate(-30," + i * 20 + ")"; })
+        ;
+        //legend.selectAll("mylabels")
+        //.data(keys)
+        //.attr(function(d){return d})
+        //.attr("x", 120)
+        //.attr("y", function(d,i){ return 100 + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+        //.style("fill", function(d){ return color(d)})
+        //.text(function(d){ return d})
+        //.attr("text-anchor", "left")
+        //.style("alignment-baseline", "middle");
+
+    state.selectAll("rect")
+         .on("mouseover", function(d){
+            
+            var delta = d.y1 - d.y0;
+            var group = d3.select(d3.select(this).node().parentNode);
+            var xPos = d3.transform(group.attr("transform")).translate[0];
+            var yPos = parseFloat(d3.select(this).attr("y"));
+            var height = parseFloat(d3.select(this).attr("height"))
+  
+            d3.select(this).attr("stroke","blue").attr("stroke-width",0.8);
+  
+   console.log(d)
+      
+            svg.append("text")
+            .attr("x",xPos)
+            .attr("y",yPos +height/2)
+            .attr("class","tooltip")
+            .text(d.name +": "+ delta); //d.name
+            
+         })
+         .on("mouseout",function(){
+            svg.select(".tooltip").remove();
+            d3.select(this).attr("stroke","pink").attr("stroke-width",0.2);
+                                  
+          })
+
+
+
+
+          
+    var jj=['A','B','C']
+    legend.append("rect")
+        .attr("x", width - 18)
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", color)
+        .text(jj);
+
+</script>
+<div style="margin-left: 1020px; margin-top:-387px; font-size: 100%"> Students Ahead
+<div style="margin-top:4px;">On Track Students</div>
+<div style="margin-top:2px;">Off Track Students</div>
+
+  </div>
+
+</body>
+
+</html>

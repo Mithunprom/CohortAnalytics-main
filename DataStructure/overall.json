@@ -1,0 +1,58 @@
+{
+  "gradeNotSufficient": [
+    {
+      "course": "MUS 101",
+      "count": 75
+    },
+    {
+      "course": "MUS 102",
+      "count": 78
+    },
+    {
+      "course": "MUS 143",
+      "count": 19
+    }
+  ],
+  "withdraws": [
+    {
+      "course": "MUS 101",
+      "count": 75
+    },
+    {
+      "course": "MUS 102",
+      "count": 78
+    },
+    {
+      "course": "MUS 143",
+      "count": 19
+    }
+  ],
+  "transfer": [
+    {
+      "course": "MUS 101",
+      "count": 75
+    },
+    {
+      "course": "MUS 102",
+      "count": 78
+    },
+    {
+      "course": "MUS 143",
+      "count": 19
+    }
+  ],
+  "UAZ": [
+    {
+      "course": "MUS 101",
+      "count": 75
+    },
+    {
+      "course": "MUS 102",
+      "count": 78
+    },
+    {
+      "course": "MUS 143",
+      "count": 19
+    }
+  ]
+}

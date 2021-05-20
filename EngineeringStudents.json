@@ -1,0 +1,70 @@
+[
+  {
+    "studentId": 12345,
+    "race": "",
+    "international": true,
+    "major": "Computer Engineering",
+    "minor": "N/A",
+    "concentration": "N/A",
+    "admittedToProgram": "Fall 2020",
+    "GPA": 2.77,
+    "completion": 0.93,
+    "efficiencyRating": 53,
+    "creditsCountedTowardsDegree": 112,
+    "creditsNotCountedTowardsDegree": 101,
+    "attemptedCreditHours": 213,
+    "reqCompleted": ["ECON", "CSC 101", "CSC 102"],
+    "reqNotCompeleted": ["MATH 466", "ECE 321L"],
+    "coursesNotCounted": [
+      {
+        "name": "CSC 127A",
+        "grade": "A",
+        "note": "Not applicable towards degree"
+      },
+      {
+        "name": "ECE 437",
+        "grade": "A",
+        "note": "Transfered Course"
+      },
+      {
+        "name": "MATH 150",
+        "grade": "W",
+        "note": "Withdraw"
+      }
+    ]
+  },
+  {
+    "studentId": 67890,
+    "race": "",
+    "international": true,
+    "major": "Computer Engineering",
+    "minor": "N/A",
+    "concentration": "N/A",
+    "admittedToProgram": "Fall 2020",
+    "GPA": 2.77,
+    "completion": 0.93,
+    "efficiencyRating": 53,
+    "creditsCountedTowardsDegree": 112,
+    "creditsNotCountedTowardsDegree": 101,
+    "attemptedCreditHours": 213,
+    "reqCompleted": ["ECON", "CSC 101", "CSC 102"],
+    "reqNotCompeleted": ["MATH 466", "ECE 321L"],
+    "coursesNotCounted": [
+      {
+        "name": "CSC 127A",
+        "grade": "A",
+        "note": "Not applicable towards degree"
+      },
+      {
+        "name": "ECE 437",
+        "grade": "A",
+        "note": "Transfered Course"
+      },
+      {
+        "name": "MATH 150",
+        "grade": "W",
+        "note": "Withdraw"
+      }
+    ]
+  }
+]
