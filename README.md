@@ -2,6 +2,7 @@
  Cohort and Student view 
  
  Running proceedure in VS code:
+<p>
  (1) go to the CohortAnalytics-main folder
  
  (2) npm init
