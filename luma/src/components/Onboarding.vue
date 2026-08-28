@@ -3,14 +3,14 @@
     <p class="tiny muted center">Meet your companion</p>
     <LumaCreature :stage="0" skin="ember" mood="happy" />
     <div class="center stack">
-      <h1>This is Luma.</h1>
-      <p class="muted">A pocket firefly who brings one 60-second spark a day — stories, kindness, riddles, breath, and cozy games.</p>
+      <h1>Luma. Drop in.</h1>
+      <p class="muted">Daily sparks plus a cave raid you actually want to replay. Explore deeper, rank up, unlock meaner difficulty. Safe, no loot boxes, no pay-to-hurt-people.</p>
     </div>
 
     <div class="card stack" v-if="step === 0">
       <label class="tiny muted">What should Luma call you?</label>
       <input class="field" v-model="name" maxlength="24" placeholder="Your first name" />
-      <button class="btn primary wide" :disabled="!name.trim()" @click="step = 1">Let’s glow</button>
+      <button class="btn primary wide" :disabled="!name.trim()" @click="step = 1">LET’S GLOW</button>
     </div>
 
     <div class="card stack" v-else>
@@ -24,8 +24,8 @@
           @click="toggle(item.id)"
         >{{ item.label }}</button>
       </div>
-      <button class="btn primary wide" @click="finish">Start my first spark</button>
-      <button class="btn ghost wide" @click="finish">Surprise me</button>
+      <button class="btn primary wide" @click="finish('spark')">START SPARK</button>
+      <button class="btn ghost wide" @click="finish('play')">SKIP — JUST PLAY</button>
     </div>
   </section>
 </template>
@@ -44,11 +44,11 @@ export default {
       name: '',
       selected: [],
       intents: [
-        { id: 'create', label: '✦ Make tiny things' },
-        { id: 'kindness', label: '♡ Feel a little kinder' },
-        { id: 'curious', label: '? Play with riddles' },
-        { id: 'body', label: '✧ Unclench for 60 seconds' },
-        { id: 'play', label: '★ Cozy mini-games' }
+        { id: 'create', label: '✦ Make stuff' },
+        { id: 'kindness', label: '♡ Keep it decent' },
+        { id: 'curious', label: '? Riddles & weird picks' },
+        { id: 'body', label: '✧ Unclench for 60s' },
+        { id: 'play', label: '▶ Games / Rift Delve' }
       ]
     }
   },
@@ -58,12 +58,12 @@ export default {
         ? this.selected.filter((x) => x !== id)
         : [...this.selected, id]
     },
-    finish() {
+    finish(dest) {
       this.store.completeOnboarding({
         name: this.name.trim() || 'friend',
         intents: this.selected
       })
-      this.$emit('started')
+      this.$emit('started', dest || 'spark')
     }
   }
 }

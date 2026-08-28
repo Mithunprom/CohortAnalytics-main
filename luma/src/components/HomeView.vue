@@ -2,21 +2,28 @@
   <section class="stack">
     <div class="row" style="justify-content: space-between;">
       <div>
-        <p class="tiny muted">{{ greeting }}</p>
-        <h1>{{ name }}.</h1>
+        <p class="tiny neon-text">{{ greeting }}</p>
+        <h1>{{ name }}</h1>
       </div>
-      <span class="chip">{{ view.stageName }} · {{ view.progress.xp }} xp</span>
+      <span class="chip neon">{{ view.delveRank?.name || 'Scout' }}</span>
     </div>
 
     <button type="button" class="plain-luma" @click="$emit('open-nest')" aria-label="Open Luma's nest">
       <LumaCreature :stage="view.stage" :skin="view.progress.nest.skin" :mood="lumaMood" />
     </button>
-    <p class="tiny muted center">Tap Luma to decorate the nest</p>
+    <p class="tiny muted center">Tap Luma to drip the nest</p>
+
+    <button type="button" class="card featured-drop stack" @click="$emit('open-play')">
+      <p class="tiny neon-text">FEATURED RAID</p>
+      <h2>Rift Delve</h2>
+      <p class="muted">Explore a living cave. Mine. Rank up. Difficulty gets meaner the deeper you go.</p>
+      <span class="btn primary wide">ENTER THE RIFT</span>
+    </button>
 
     <div class="stats">
       <div class="card stat"><b>{{ view.progress.streak }}</b><span class="tiny muted">streak</span></div>
-      <div class="card stat"><b>{{ view.progress.totalSparks }}</b><span class="tiny muted">sparks</span></div>
-      <div class="card stat"><b>{{ Object.keys(view.progress.constellation).length }}</b><span class="tiny muted">stars</span></div>
+      <div class="card stat"><b>{{ view.progress.exploreXp || 0 }}</b><span class="tiny muted">explore</span></div>
+      <div class="card stat"><b>{{ view.delveRank?.difficulty || 'Chill' }}</b><span class="tiny muted">diff</span></div>
     </div>
 
     <div class="card stack">
@@ -34,7 +41,7 @@
       <h2>{{ view.quest.title }}</h2>
       <p class="muted">{{ view.quest.prompt }}</p>
       <button class="btn primary wide" @click="$emit('open-spark')">
-        {{ alreadyDone ? 'See today’s spark' : 'Begin 60-second spark' }}
+        {{ alreadyDone ? 'Replay spark' : 'START SPARK' }}
       </button>
     </div>
   </section>
@@ -49,7 +56,7 @@ export default {
   name: 'HomeView',
   components: { LumaCreature },
   inject: ['game', 'store'],
-  emits: ['open-spark', 'open-nest'],
+  emits: ['open-spark', 'open-nest', 'open-play'],
   data() {
     return {
       moods: [
@@ -66,9 +73,9 @@ export default {
     name() { return this.view.profile.name || 'friend' },
     greeting() {
       const h = new Date().getHours()
-      if (h < 12) return 'Good morning'
-      if (h < 18) return 'Good afternoon'
-      return 'Good evening'
+      if (h < 12) return 'MORNING DROP'
+      if (h < 18) return 'AFTERNOON QUEUE'
+      return 'NIGHT RAID'
     },
     category() { return CATEGORIES[this.view.quest?.category] || CATEGORIES.play },
     prettyDate() { return formatPrettyDate(this.view.today) },

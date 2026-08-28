@@ -1,3 +1,5 @@
+import { rankFromXp } from './delve.js'
+
 export const STORAGE_KEY = 'luma.spark.v1'
 export const PRODUCTS = {
   monthly: {
@@ -46,6 +48,9 @@ export const BADGES = [
   { id: 'week-glow', name: 'Week Glow', test: (s) => s.longestStreak >= 7 },
   { id: 'constellation-12', name: 'Twelve Stars', test: (s) => s.totalSparks >= 12 },
   { id: 'arcade-ace', name: 'Arcade Ace', test: (s) => Object.values(s.highScores || {}).some((n) => n >= 40) },
+  { id: 'cave-scout', name: 'Cave Scout', test: (s) => (s.exploreXp || 0) >= 8 },
+  { id: 'deep-cut', name: 'Deep Cut', test: (s) => (s.bestDepth || 0) >= 12 },
+  { id: 'mythic-delver', name: 'Mythic Delver', test: (s) => rankFromXp(s.exploreXp || 0).id >= 3 },
   { id: 'kind-heart', name: 'Kind Heart', test: (s) => (s.categoryCounts?.kindness || 0) >= 5 },
   { id: 'wordsmith', name: 'Wordsmith', test: (s) => (s.categoryCounts?.create || 0) >= 5 },
   { id: 'nova', name: 'Went Nova', test: (s) => stageFromXp(s.xp) >= 4 }
@@ -94,11 +99,15 @@ export function defaultState() {
       constellation: {},
       badges: [],
       categoryCounts: {},
-      highScores: { starCatch: 0, glowMemory: 0, wordSpark: 0 },
+      highScores: { starCatch: 0, glowMemory: 0, wordSpark: 0, riftDelve: 0, neonRush: 0 },
       nest: { habitat: 'night', skin: 'ember' },
       moodToday: null,
       lastMoodDate: null,
-      questOffset: 0
+      questOffset: 0,
+      exploreXp: 0,
+      bestDepth: 0,
+      oresFound: 0,
+      crystalsFound: 0
     }
   }
 }
@@ -205,6 +214,16 @@ export function applyArcadePlay(state, today, gameId, score) {
     const prev = next.progress.highScores[gameId] || 0
     next.progress.highScores[gameId] = Math.max(prev, score)
   }
+  next.progress.badges = unlockBadges(next.progress)
+  return next
+}
+
+export function applyExplore(state, { exploreXp = 0, depth = 0, ores = 0, crystals = 0 } = {}) {
+  const next = clone(state)
+  next.progress.exploreXp = (next.progress.exploreXp || 0) + Math.max(0, exploreXp)
+  next.progress.bestDepth = Math.max(next.progress.bestDepth || 0, depth || 0)
+  next.progress.oresFound = (next.progress.oresFound || 0) + (ores || 0)
+  next.progress.crystalsFound = (next.progress.crystalsFound || 0) + (crystals || 0)
   next.progress.badges = unlockBadges(next.progress)
   return next
 }
