@@ -1,5 +1,7 @@
 /** Original cave-delve sim — not a clone of any commercial sandbox. */
 
+import { dateKey, hashString } from './dates.js'
+
 export const TILE = {
   AIR: 0,
   SOIL: 1,
@@ -50,6 +52,83 @@ export function canMineTile(tile, minePower) {
   return minePower >= 1
 }
 
+/**
+ * Four original rift biomes. The seed picks one for the day, so the HUD can
+ * name the place everyone is running and the palette shifts to match.
+ */
+export const BIOMES = [
+  {
+    id: 'ember-clay',
+    name: 'Ember Clay',
+    flavour: 'Warm packed clay. Soft digging, shallow veins.',
+    accent: '#ff9a3d',
+    palette: { air: '#170f10', soil: '#7a4326', stone: '#463441', hard: '#2a1f2c' }
+  },
+  {
+    id: 'glowcap-hollow',
+    name: 'Glowcap Hollow',
+    flavour: 'Fungal light everywhere. Mites hate it here.',
+    accent: '#8dff6a',
+    palette: { air: '#101a12', soil: '#4f5c2c', stone: '#31463c', hard: '#1d2a26' }
+  },
+  {
+    id: 'riftglass',
+    name: 'Riftglass',
+    flavour: 'Brittle glass shelves. Crystals sing when they break.',
+    accent: '#63e7ff',
+    palette: { air: '#0f1420', soil: '#3b5570', stone: '#2f3d5c', hard: '#1b2338' }
+  },
+  {
+    id: 'void-veins',
+    name: 'Void Veins',
+    flavour: 'The dark pushes back. Deepest ore in the rift.',
+    accent: '#c66bff',
+    palette: { air: '#120c1c', soil: '#4a2f66', stone: '#33294b', hard: '#1d1730' }
+  }
+]
+
+export function biomeFromSeed(seed = 1) {
+  const n = Math.abs(Math.floor(Number(seed) || 0))
+  return BIOMES[n % BIOMES.length]
+}
+
+/** Seed shared by everyone playing on the same local date. */
+export function dailySeed(key = dateKey()) {
+  const date = typeof key === 'string' && key ? key : dateKey()
+  return hashString(`rift:${date}`)
+}
+
+export function dailyBiome(key = dateKey()) {
+  return biomeFromSeed(dailySeed(key))
+}
+
+/** Mining chain: breaks inside the window keep the combo alive. */
+export const COMBO_WINDOW = 1.2
+
+export function comboStep(combo = 0, sinceLastBreak = Infinity, window = COMBO_WINDOW) {
+  const gap = Number(sinceLastBreak)
+  if (!Number.isFinite(gap) || gap > window) return 1
+  return Math.max(1, Math.floor(combo)) + 1
+}
+
+/** Combos only start paying at 5, then scale so long chains feel worth it. */
+export function comboBonus(combo = 0) {
+  const n = Math.floor(Number(combo) || 0)
+  if (n < 5) return 0
+  return (n - 4) * 6
+}
+
+/** Neon Rush: a block sliding past a neighbouring lane is a near miss. */
+export const NEAR_MISS_POINTS = 3
+
+export function isNearMiss(playerLane, bitLane) {
+  return Math.abs(Math.floor(playerLane) - Math.floor(bitLane)) === 1
+}
+
+export function nearMissBonus(count = 0) {
+  return Math.max(0, Math.floor(Number(count) || 0)) * NEAR_MISS_POINTS
+}
+
 export function zoneDifficulty(depth) {
   if (depth < 6) return 'Chill'
   if (depth < 11) return 'Amped'
@@ -61,9 +140,9 @@ export function depthFrom(x, y) {
   return Math.max(Math.abs(x - SPAWN.x), Math.abs(y - SPAWN.y))
 }
 
-export function scoreRun({ revealed = 0, ores = 0, crystals = 0, depth = 0, hp = 3 }) {
+export function scoreRun({ revealed = 0, ores = 0, crystals = 0, depth = 0, hp = 3, comboMax = 0 }) {
   const survival = hp > 0 ? 15 : 0
-  return revealed + ores * 12 + crystals * 20 + depth * 3 + survival
+  return revealed + ores * 12 + crystals * 20 + depth * 3 + survival + comboBonus(comboMax)
 }
 
 export function exploreXpFrom({ revealed = 0, ores = 0, crystals = 0, depth = 0 }) {
@@ -81,12 +160,16 @@ function mulberry(seed) {
 
 export function generateCave(seed = 1) {
   const rand = mulberry(seed >>> 0 || 1)
+  const biome = biomeFromSeed(seed)
+  const soilBias = biome.id === 'ember-clay' ? 0.34 : biome.id === 'riftglass' ? 0.14 : 0.22
+  const oreBias = biome.id === 'void-veins' ? 0.18 : 0.12
+  const crystalBias = biome.id === 'riftglass' ? 0.13 : 0.08
   const tiles = new Array(MAP_W * MAP_H).fill(TILE.STONE)
   const at = (x, y) => y * MAP_W + x
   const inb = (x, y) => x > 0 && y > 0 && x < MAP_W - 1 && y < MAP_H - 1
 
   for (let i = 0; i < MAP_W * MAP_H; i++) {
-    tiles[i] = rand() < 0.22 ? TILE.SOIL : TILE.STONE
+    tiles[i] = rand() < soilBias ? TILE.SOIL : TILE.STONE
   }
 
   let x = SPAWN.x
@@ -113,8 +196,8 @@ export function generateCave(seed = 1) {
         const ny = gy + oy
         if (!inb(nx, ny) || tiles[at(nx, ny)] === TILE.AIR) continue
         const roll = rand()
-        if (d > 14 && roll < 0.08) tiles[at(nx, ny)] = TILE.CRYSTAL
-        else if (d > 7 && roll < 0.12) tiles[at(nx, ny)] = TILE.ORE
+        if (d > 14 && roll < crystalBias) tiles[at(nx, ny)] = TILE.CRYSTAL
+        else if (d > 7 && roll < oreBias) tiles[at(nx, ny)] = TILE.ORE
         else if (d > 10 && roll < 0.2) tiles[at(nx, ny)] = TILE.HARD
       }
     }
@@ -140,7 +223,12 @@ export function generateCave(seed = 1) {
     }
   }
 
-  return { tiles, mites, w: MAP_W, h: MAP_H }
+  return { tiles, mites, w: MAP_W, h: MAP_H, seed: seed >>> 0, biome }
+}
+
+/** Same map for everyone on the same local day. */
+export function dailyCave(key = dateKey()) {
+  return generateCave(dailySeed(key))
 }
 
 export function tileIndex(x, y, w = MAP_W) {

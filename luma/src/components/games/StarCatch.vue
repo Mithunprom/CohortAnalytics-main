@@ -2,9 +2,10 @@
   <div class="stack">
     <div class="row" style="justify-content: space-between;">
       <span class="chip">{{ seconds }}s</span>
+      <span class="chip" v-if="streak > 1">{{ streak }} in a row</span>
       <span class="chip">{{ score }} caught</span>
     </div>
-    <div class="game-stage" ref="stage">
+    <div class="game-stage catch-stage" :class="{ hot: streak >= 5 }" ref="stage">
       <button
         v-for="star in stars"
         :key="star.id"
@@ -12,6 +13,12 @@
         :style="{ left: star.x + 'px', top: star.y + 'px' }"
         @pointerdown.prevent="catchStar(star.id)"
       ></button>
+      <span
+        v-for="pop in pops"
+        :key="pop.id"
+        class="catch-pop"
+        :style="{ left: pop.x + 'px', top: pop.y + 'px' }"
+      >{{ pop.text }}</span>
     </div>
   </div>
 </template>
@@ -24,7 +31,7 @@ export default {
     exploreXp: { type: Number, default: 0 }
   },
   data() {
-    return { stars: [], score: 0, seconds: 30, nextId: 1, timers: [] }
+    return { stars: [], pops: [], score: 0, streak: 0, bestStreak: 0, seconds: 30, nextId: 1, timers: [] }
   },
   computed: {
     speed() {
@@ -59,13 +66,35 @@ export default {
     },
     fall() {
       const { h } = this.bounds()
-      this.stars = this.stars
-        .map((s) => ({ ...s, y: s.y + 2.6 * this.speed }))
-        .filter((s) => s.y < h)
+      let dropped = 0
+      const kept = []
+      for (const s of this.stars) {
+        const y = s.y + 2.6 * this.speed
+        if (y < h) kept.push({ ...s, y })
+        else dropped += 1
+      }
+      this.stars = kept
+      if (dropped) this.streak = 0
+      this.pops = this.pops
+        .map((p) => ({ ...p, y: p.y - 2.4, life: p.life - 1 }))
+        .filter((p) => p.life > 0)
     },
     catchStar(id) {
+      const star = this.stars.find((s) => s.id === id)
       this.stars = this.stars.filter((s) => s.id !== id)
       this.score += 1
+      this.streak += 1
+      this.bestStreak = Math.max(this.bestStreak, this.streak)
+      if (star) {
+        this.pops.push({
+          id: this.nextId++,
+          x: star.x,
+          y: star.y,
+          text: this.streak >= 3 ? `${this.streak}x` : '+1',
+          life: 14
+        })
+        if (this.pops.length > 8) this.pops.shift()
+      }
     },
     tick() {
       if (this.seconds <= 1) {
@@ -79,3 +108,16 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.catch-stage { position: relative; transition: box-shadow 0.25s ease; }
+.catch-stage.hot { box-shadow: inset 0 0 42px rgba(61, 255, 210, 0.22); }
+.catch-pop {
+  position: absolute;
+  font-size: 11px;
+  font-weight: 700;
+  color: #3dffd2;
+  text-shadow: 0 0 8px currentColor;
+  pointer-events: none;
+}
+</style>

@@ -1,4 +1,14 @@
 import { rankFromXp } from './delve.js'
+import { dateKey } from './dates.js'
+import {
+  CONTRACT_XP,
+  CONTRACT_EXPLORE_XP,
+  todaysContract,
+  contractComplete,
+  arcadeMetrics,
+  exploreMetrics,
+  mergeMetrics
+} from './contracts.js'
 
 export const STORAGE_KEY = 'luma.spark.v1'
 export const PRODUCTS = {
@@ -53,6 +63,7 @@ export const BADGES = [
   { id: 'mythic-delver', name: 'Mythic Delver', test: (s) => rankFromXp(s.exploreXp || 0).id >= 3 },
   { id: 'kind-heart', name: 'Kind Heart', test: (s) => (s.categoryCounts?.kindness || 0) >= 5 },
   { id: 'wordsmith', name: 'Wordsmith', test: (s) => (s.categoryCounts?.create || 0) >= 5 },
+  { id: 'contractor', name: 'Contractor', test: (s) => (s.contractXP || 0) >= CONTRACT_XP },
   { id: 'nova', name: 'Went Nova', test: (s) => stageFromXp(s.xp) >= 4 }
 ]
 
@@ -107,7 +118,13 @@ export function defaultState() {
       exploreXp: 0,
       bestDepth: 0,
       oresFound: 0,
-      crystalsFound: 0
+      crystalsFound: 0,
+      bestCombo: 0,
+      contractDate: null,
+      contractId: null,
+      contractDone: false,
+      contractXP: 0,
+      contractCounts: {}
     }
   }
 }
@@ -204,6 +221,28 @@ export function applyReroll(state, today) {
   return next
 }
 
+/**
+ * Roll one run's metrics into today's contract and pay the bonus the first
+ * time the goal is met. Mutates `progress` in place; callers already cloned.
+ * Safe to call more than once per run — the bonus is gated on contractDone.
+ */
+export function trackContract(progress, today, sample) {
+  const contract = todaysContract(today)
+  if (progress.contractDate !== contract.date || progress.contractId !== contract.id) {
+    progress.contractDate = contract.date
+    progress.contractId = contract.id
+    progress.contractDone = false
+    progress.contractCounts = {}
+  }
+  progress.contractCounts = mergeMetrics(progress.contractCounts, sample)
+  if (progress.contractDone || !contractComplete(progress, contract)) return false
+  progress.contractDone = true
+  progress.contractXP = (progress.contractXP || 0) + CONTRACT_XP
+  progress.xp = (progress.xp || 0) + CONTRACT_XP
+  progress.exploreXp = (progress.exploreXp || 0) + CONTRACT_EXPLORE_XP
+  return true
+}
+
 export function applyArcadePlay(state, today, gameId, score) {
   const next = clone(state)
   const { arcadePlaysToday } = dailyCounters(next.progress, today)
@@ -214,16 +253,20 @@ export function applyArcadePlay(state, today, gameId, score) {
     const prev = next.progress.highScores[gameId] || 0
     next.progress.highScores[gameId] = Math.max(prev, score)
   }
+  trackContract(next.progress, today, arcadeMetrics(gameId, score))
   next.progress.badges = unlockBadges(next.progress)
   return next
 }
 
-export function applyExplore(state, { exploreXp = 0, depth = 0, ores = 0, crystals = 0 } = {}) {
+export function applyExplore(state, extra = {}, today = dateKey()) {
+  const { exploreXp = 0, depth = 0, ores = 0, crystals = 0, comboMax = 0 } = extra
   const next = clone(state)
   next.progress.exploreXp = (next.progress.exploreXp || 0) + Math.max(0, exploreXp)
   next.progress.bestDepth = Math.max(next.progress.bestDepth || 0, depth || 0)
   next.progress.oresFound = (next.progress.oresFound || 0) + (ores || 0)
   next.progress.crystalsFound = (next.progress.crystalsFound || 0) + (crystals || 0)
+  next.progress.bestCombo = Math.max(next.progress.bestCombo || 0, comboMax || 0)
+  trackContract(next.progress, today, exploreMetrics(extra))
   next.progress.badges = unlockBadges(next.progress)
   return next
 }

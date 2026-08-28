@@ -1,51 +1,51 @@
 <template>
   <section class="stack">
-    <div class="row" style="justify-content: space-between;">
-      <span class="chip">{{ category.emoji }} {{ category.label }}</span>
-      <button class="btn ghost" style="padding:8px 12px" :disabled="view.gated.reroll && !view.plus" @click="reroll">
-        New spark
+    <div class="row between">
+      <span class="chip neon">SIDE MISSION · {{ category.label }}</span>
+      <button class="btn ghost sm" :disabled="view.gated.reroll && !view.plus" @click="reroll">
+        RESHUFFLE
       </button>
     </div>
     <h1>{{ quest.title }}</h1>
     <p class="muted">{{ quest.prompt }}</p>
 
     <div class="card stack" v-if="alreadyDone && !playingExtra">
-      <p class="tiny muted">Today’s star is already in the sky</p>
-      <p>{{ alreadyDone.answer || 'Completed.' }}</p>
-      <button v-if="view.plus" class="btn ghost wide" @click="playingExtra = true">Do another spark</button>
-      <button v-else class="btn primary wide" @click="$emit('need-plus', 'Unlimited extra sparks live in Luma Plus.')">Unlock extra sparks</button>
+      <p class="tiny neon-text">CLEARED TODAY</p>
+      <p>{{ alreadyDone.answer || 'Done.' }}</p>
+      <button v-if="view.plus" class="btn ghost wide" @click="playingExtra = true">RUN ANOTHER</button>
+      <button v-else class="btn primary wide" @click="$emit('need-plus', 'Extra sparks are a Plus thing. One a day is free, forever.')">UNLOCK EXTRA SPARKS</button>
     </div>
 
     <template v-else>
       <div v-if="quest.type === 'write'" class="stack">
-        <textarea class="area" v-model="answer" :placeholder="quest.placeholder || 'A tiny answer is enough.'"></textarea>
-        <button class="btn primary wide" :disabled="answer.trim().length < 4" @click="complete(answer)">Place the star</button>
+        <textarea class="area" v-model="answer" :placeholder="quest.placeholder || 'One line is enough.'"></textarea>
+        <button class="btn primary wide giant" :disabled="answer.trim().length < 4" @click="complete(answer)">LOCK IT IN</button>
       </div>
 
       <div v-else-if="quest.type === 'choice'" class="stack">
         <button v-for="opt in quest.options" :key="opt" class="choice" :class="{ picked: answer === opt }" @click="answer = opt">{{ opt }}</button>
-        <button class="btn primary wide" :disabled="!answer" @click="complete(answer)">That’s my pick</button>
+        <button class="btn primary wide giant" :disabled="!answer" @click="complete(answer)">LOCK IT IN</button>
       </div>
 
       <div v-else-if="quest.type === 'riddle'" class="stack">
         <input class="field" v-model="answer" placeholder="Your guess" @keyup.enter="tryRiddle" />
         <p v-if="hint" class="muted">Hint: {{ hint }}</p>
-        <p v-if="riddleError" class="muted" style="color: var(--danger)">{{ riddleError }}</p>
+        <p v-if="riddleError" class="tiny warn">{{ riddleError }}</p>
         <div class="row">
-          <button class="btn ghost" style="flex:1" @click="showHint">Hint</button>
-          <button class="btn primary" style="flex:2" @click="tryRiddle">Guess</button>
+          <button class="btn ghost" style="flex:1" @click="showHint">HINT</button>
+          <button class="btn primary" style="flex:2" @click="tryRiddle">GUESS</button>
         </div>
       </div>
 
       <div v-else-if="quest.type === 'action'" class="stack">
-        <p class="muted">No photo, no proof, no guilt. Just a tiny follow-through.</p>
-        <button class="btn primary wide" @click="complete(quest.confirm)">{{ quest.confirm || 'I did it' }}</button>
+        <p class="muted">No photo, no proof, no guilt. Just do the thing.</p>
+        <button class="btn primary wide giant" @click="complete(quest.confirm)">{{ (quest.confirm || 'Did it').toUpperCase() }}</button>
       </div>
 
       <div v-else-if="quest.type === 'breathe'" class="stack center">
         <div class="breathe"></div>
-        <p class="muted">In · hold · out. Stay for three rounds.</p>
-        <button class="btn primary wide" @click="complete('breathed')">I breathed with Luma</button>
+        <p class="muted">In · hold · out. Three rounds, then you’re out of here.</p>
+        <button class="btn primary wide giant" @click="complete('breathed')">DONE</button>
       </div>
 
       <div v-else-if="quest.type === 'play'" class="stack">
@@ -81,7 +81,7 @@ export default {
   methods: {
     reroll() {
       const result = this.store.reroll()
-      if (!result.ok) this.$emit('need-plus', 'Plus lets you reroll sparks when today needs a different flavor.')
+      if (!result.ok) this.$emit('need-plus', 'Reshuffling sparks is a Plus thing.')
       else {
         this.answer = ''
         this.hintIndex = 0
@@ -101,7 +101,7 @@ export default {
     complete(answer) {
       const result = this.store.completeSpark(answer)
       if (!result.ok) {
-        this.$emit('need-plus', 'Free lanterns get one spark a day. Plus keeps the sky open.')
+        this.$emit('need-plus', 'One spark a day is free. Plus keeps them coming.')
         return
       }
       this.playingExtra = false

@@ -23,7 +23,8 @@ import {
   clone
 } from './rules.js'
 import { todaysQuest } from './quests.js'
-import { rankFromXp, nextRank } from './delve.js'
+import { rankFromXp, nextRank, dailyBiome, dailySeed } from './delve.js'
+import { todaysContract, contractProgress } from './contracts.js'
 
 function load() {
   try {
@@ -40,7 +41,8 @@ function load() {
         ...base.progress,
         ...(parsed.progress || {}),
         highScores: { ...base.progress.highScores, ...(parsed.progress?.highScores || {}) },
-        nest: { ...base.progress.nest, ...(parsed.progress?.nest || {}) }
+        nest: { ...base.progress.nest, ...(parsed.progress?.nest || {}) },
+        contractCounts: { ...(parsed.progress?.contractCounts || {}) }
       }
     }
   } catch {
@@ -70,6 +72,7 @@ export function createStore() {
     const stage = stageFromXp(state.progress.xp)
     const delveRank = rankFromXp(state.progress.exploreXp || 0)
     const upcoming = nextRank(state.progress.exploreXp || 0)
+    const dailyContract = contractProgress(state.progress, todaysContract(today))
     return {
       ...clone(state),
       today,
@@ -80,6 +83,10 @@ export function createStore() {
       stageName: STAGE_NAMES[stage],
       delveRank,
       nextDelve: upcoming,
+      dailyContract,
+      contractDone: dailyContract.done,
+      dailyBiome: dailyBiome(today),
+      dailySeed: dailySeed(today),
       limits: {
         sparks: sparkLimit(plus),
         rerolls: rerollLimit(plus),
@@ -149,12 +156,14 @@ export function createStore() {
     playArcade(gameId, score, extra = {}) {
       const today = dateKey()
       if (!canPlayArcade(state, today)) return { ok: false, reason: 'limit' }
+      const before = state.progress.contractDone && state.progress.contractDate === today
       state = applyArcadePlay(state, today, gameId, score)
-      if (extra.exploreXp || extra.depth || extra.ores || extra.crystals) {
-        state = applyExplore(state, extra)
+      if (extra.exploreXp || extra.depth || extra.ores || extra.crystals || extra.comboMax) {
+        state = applyExplore(state, extra, today)
       }
+      const contractCleared = !before && state.progress.contractDone
       emit()
-      return { ok: true }
+      return { ok: true, contractCleared }
     },
     subscribePlan(productKey) {
       state = applySubscribe(state, productKey)

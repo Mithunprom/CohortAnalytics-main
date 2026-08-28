@@ -1,26 +1,28 @@
 <template>
   <section class="stack">
-    <h1>PLUS PASS</h1>
-    <p class="muted">Unlimited runs. That’s the whole trick. No ads, no loot boxes, no selling your mood.</p>
+    <p class="tiny neon-text">PLUS PASS</p>
+    <h1>Never run dry.</h1>
+    <p class="muted">Unlimited runs. That’s the whole pitch. No ads, no loot boxes, nothing that makes you stronger than the person next to you.</p>
 
     <div class="card stack" v-if="view.plus">
-      <p class="tiny muted">You’re glowing</p>
+      <p class="tiny neon-text">ACTIVE</p>
       <h2>{{ planLabel }}</h2>
-      <p class="muted">Renews {{ expiry }}. Manage in App Store settings after launch.</p>
+      <p class="muted">Renews {{ expiry }}. Manage it in App Store settings.</p>
       <p>Streak shields in pocket: {{ view.progress.streakShields }}</p>
     </div>
 
-    <div class="card stack">
-      <p class="tiny muted">What Plus unlocks</p>
-      <p>Unlimited Rift Delve + Neon Rush energy</p>
-      <p>Unlimited extra sparks and rerolls</p>
-      <p>Aurora habitats and companion skins</p>
-      <p>A streak shield every 7 days</p>
+    <div class="card stack tight">
+      <p class="tiny muted">WHAT YOU GET</p>
+      <p>◆ Unlimited Rift Delve and Neon Rush energy</p>
+      <p>◆ Extra sparks and reshuffles, all day</p>
+      <p>◆ Aurora habitats and companion skins</p>
+      <p>◆ A streak shield every 7 days</p>
+      <p class="small muted">What you don’t get: mine power, rank, or any advantage over anyone. Those come from the Rift.</p>
     </div>
 
     <div class="price" v-if="!view.plus">
       <button class="plan best" @click="choose('yearly')">
-        <span class="tag">Best value</span>
+        <span class="tag">BEST VALUE</span>
         <b>Yearly · $29.99</b>
         <p class="muted">7-day free trial · $2.50 / month</p>
       </button>
@@ -30,8 +32,8 @@
       </button>
     </div>
 
-    <button class="btn ghost wide" @click="restore">Restore purchases</button>
-    <p class="tiny muted center">
+    <button class="btn ghost wide sm" @click="restore">RESTORE PURCHASES</button>
+    <p class="small muted center">
       Payment will be charged to your Apple ID at confirmation. Subscriptions auto-renew unless canceled at least 24 hours before the end of the period.
       This web build uses a local demo StoreKit so you can try Plus immediately.
     </p>
@@ -65,7 +67,7 @@ export default {
     restore() {
       const result = this.store.restorePurchases()
       if (result.ok) this.$emit('subscribed', 'Restored')
-      else alert('No previous Plus receipt on this device yet.')
+      else alert('No Plus receipt on this device yet.')
     }
   }
 }
