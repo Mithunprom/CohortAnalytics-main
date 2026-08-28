@@ -9,6 +9,7 @@ import {
   applySparkCompletion,
   applyReroll,
   applyArcadePlay,
+  applyExplore,
   applySubscribe,
   applyRestore,
   stageFromXp,
@@ -22,12 +23,26 @@ import {
   clone
 } from './rules.js'
 import { todaysQuest } from './quests.js'
+import { rankFromXp, nextRank } from './delve.js'
 
 function load() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return defaultState()
-    return { ...defaultState(), ...JSON.parse(raw) }
+    const parsed = JSON.parse(raw)
+    const base = defaultState()
+    return {
+      ...base,
+      ...parsed,
+      profile: { ...base.profile, ...(parsed.profile || {}) },
+      subscription: { ...base.subscription, ...(parsed.subscription || {}) },
+      progress: {
+        ...base.progress,
+        ...(parsed.progress || {}),
+        highScores: { ...base.progress.highScores, ...(parsed.progress?.highScores || {}) },
+        nest: { ...base.progress.nest, ...(parsed.progress?.nest || {}) }
+      }
+    }
   } catch {
     return defaultState()
   }
@@ -53,6 +68,8 @@ export function createStore() {
     const counters = dailyCounters(state.progress, today)
     const quest = clone(todaysQuest(today, state.progress.questOffset || 0, state.profile.intents || []))
     const stage = stageFromXp(state.progress.xp)
+    const delveRank = rankFromXp(state.progress.exploreXp || 0)
+    const upcoming = nextRank(state.progress.exploreXp || 0)
     return {
       ...clone(state),
       today,
@@ -61,6 +78,8 @@ export function createStore() {
       quest,
       stage,
       stageName: STAGE_NAMES[stage],
+      delveRank,
+      nextDelve: upcoming,
       limits: {
         sparks: sparkLimit(plus),
         rerolls: rerollLimit(plus),
@@ -127,10 +146,13 @@ export function createStore() {
       emit()
       return { ok: true }
     },
-    playArcade(gameId, score) {
+    playArcade(gameId, score, extra = {}) {
       const today = dateKey()
       if (!canPlayArcade(state, today)) return { ok: false, reason: 'limit' }
       state = applyArcadePlay(state, today, gameId, score)
+      if (extra.exploreXp || extra.depth || extra.ores || extra.crystals) {
+        state = applyExplore(state, extra)
+      }
       emit()
       return { ok: true }
     },

@@ -1,8 +1,9 @@
-import { defaultState, applySparkCompletion, applyReroll, applyArcadePlay, applySubscribe, isPlusActive, canCompleteSpark, canPlayArcade, canReroll, stageFromXp } from './rules.js'
+import { defaultState, applySparkCompletion, applyReroll, applyArcadePlay, applySubscribe, applyExplore, isPlusActive, canCompleteSpark, canPlayArcade, canReroll, stageFromXp } from './rules.js'
 import { isYesterday, dateKey, pickIndex } from './dates.js'
 import { riddleCorrect, scrambleWord, todaysQuest } from './quests.js'
 import { createStore } from './store.js'
 import { STORAGE_KEY } from './rules.js'
+import { rankFromXp, canMineTile, generateCave, TILE, MAP_W, MAP_H, SPAWN } from './delve.js'
 import { describe, expect, it, beforeEach } from 'vitest'
 
 function stateWith(overrides = {}) {
@@ -159,5 +160,35 @@ describe('store snapshot after mutations', () => {
     expect(view.plus).toBe(true)
     expect(view.subscription.plan).toBe('yearly')
     expect(localStorage.getItem(STORAGE_KEY)).toBeTruthy()
+  })
+})
+
+describe('rift delve ranks', () => {
+  it('starts as Scout and ranks up from explore xp', () => {
+    expect(rankFromXp(0).name).toBe('Scout')
+    expect(rankFromXp(50).name).toBe('Runner')
+    expect(rankFromXp(140).difficulty).toBe('Wild')
+    expect(rankFromXp(320).name).toBe('Mythic')
+  })
+
+  it('lets scouts mine ore but not crystal', () => {
+    expect(canMineTile(TILE.ORE, 1)).toBe(true)
+    expect(canMineTile(TILE.CRYSTAL, 1)).toBe(false)
+    expect(canMineTile(TILE.CRYSTAL, 2)).toBe(true)
+    expect(canMineTile(TILE.BEDROCK, 4)).toBe(false)
+  })
+
+  it('awards explore xp and depth from a run', () => {
+    const next = applyExplore(defaultState(), { exploreXp: 60, depth: 14, ores: 3, crystals: 1 })
+    expect(next.progress.exploreXp).toBe(60)
+    expect(next.progress.bestDepth).toBe(14)
+    expect(next.progress.badges).toContain('cave-scout')
+    expect(next.progress.badges).toContain('deep-cut')
+  })
+
+  it('builds a cave with a spawn air pocket', () => {
+    const cave = generateCave(42)
+    expect(cave.tiles.length).toBe(MAP_W * MAP_H)
+    expect(cave.tiles[SPAWN.y * MAP_W + SPAWN.x]).toBe(TILE.AIR)
   })
 })

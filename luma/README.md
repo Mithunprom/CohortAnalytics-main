@@ -7,7 +7,9 @@ This is the consumer app to wrap for the App Store. The original Cohort Analytic
 ## Why people open it
 - A character who reacts (Luma evolves from Ember → Nova)
 - A fresh daily quest from 90 prompts across Create, Kindness, Curious, Body, and Play
-- Three short games: Star Catch, Glow Memory, Word Spark
+- A featured **Rift Delve** cave raid (original exploration — not a clone of any sandbox). Walk, mine glow-ore, dodge shadow mites. Depth raises the live zone difficulty; explore XP unlocks Scout → Runner → Delver → Mythic.
+- **Neon Rush** and Star Catch scale speed from that same delve rank.
+- Daily sparks, constellation sky, and a neon HUD aimed at teens.
 - A sky of stars you actually made, not a generic calendar
 - Mood check-in that stays on-device
 

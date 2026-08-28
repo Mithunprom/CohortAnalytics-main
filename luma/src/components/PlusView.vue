@@ -1,7 +1,7 @@
 <template>
   <section class="stack">
-    <h1>Luma Plus</h1>
-    <p class="muted">A gentle subscription. No ads, no gambling, no selling your mood. Just more sparks, more sky, more play.</p>
+    <h1>PLUS PASS</h1>
+    <p class="muted">Unlimited runs. That’s the whole trick. No ads, no loot boxes, no selling your mood.</p>
 
     <div class="card stack" v-if="view.plus">
       <p class="tiny muted">You’re glowing</p>
@@ -12,11 +12,10 @@
 
     <div class="card stack">
       <p class="tiny muted">What Plus unlocks</p>
+      <p>Unlimited Rift Delve + Neon Rush energy</p>
       <p>Unlimited extra sparks and rerolls</p>
-      <p>Unlimited arcade energy</p>
       <p>Aurora habitats and companion skins</p>
       <p>A streak shield every 7 days</p>
-      <p>The whole constellation archive on this device</p>
     </div>
 
     <div class="price" v-if="!view.plus">

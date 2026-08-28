@@ -6,13 +6,13 @@
       <div class="shell">
         <header class="status">
           <span>LUMA</span>
-          <span>{{ plusLabel }}</span>
+          <span class="status-rank">{{ view.delveRank?.name || 'SCOUT' }} · {{ plusLabel }}</span>
         </header>
 
         <Onboarding v-if="!view.profile.onboardingDone" @started="tab = 'spark'" />
 
         <main class="content" v-else>
-          <HomeView v-if="tab === 'home'" @open-spark="tab = 'spark'" @open-nest="tab = 'nest'" />
+          <HomeView v-if="tab === 'home'" @open-spark="tab = 'spark'" @open-nest="tab = 'nest'" @open-play="tab = 'play'" />
           <SparkView v-else-if="tab === 'spark'" @need-plus="openPaywall" @celebrated="celebrate" />
           <SkyView v-else-if="tab === 'sky'" />
           <ArcadeView v-else-if="tab === 'play'" @need-plus="openPaywall" @celebrated="celebrate" />
@@ -30,11 +30,11 @@
 
       <div class="overlay" v-if="paywall" @click.self="paywall = false">
         <div class="sheet stack">
-          <h2>Keep the lantern lit</h2>
+          <h2>Keep the run going</h2>
           <p class="muted">{{ paywallReason }}</p>
-          <p>Plus is how Luma stays ad-free and how you earn from the App Store: a clear, cancelable subscription.</p>
-          <button class="btn primary wide" @click="goPlus">See Luma Plus</button>
-          <button class="btn ghost wide" @click="paywall = false">Maybe later</button>
+          <p>Plus is unlimited arcade energy. Rank still comes from exploring — we don’t sell power.</p>
+          <button class="btn primary wide" @click="goPlus">UNLOCK PLUS</button>
+          <button class="btn ghost wide" @click="paywall = false">NAH</button>
         </div>
       </div>
 
@@ -45,8 +45,8 @@
           </div>
           <LumaCreature :stage="view.stage" :skin="view.progress.nest.skin" mood="celebrate" />
           <h2>{{ celebrateTitle }}</h2>
-          <p class="muted">Streak {{ view.progress.streak }} · {{ view.stageName }}</p>
-          <button class="btn primary wide" @click="showCelebrate = false">Beautiful</button>
+          <p class="muted">Streak {{ view.progress.streak }} · {{ view.delveRank?.name || view.stageName }}</p>
+          <button class="btn primary wide" @click="showCelebrate = false">LET’S GO</button>
         </div>
       </div>
     </div>
@@ -75,10 +75,10 @@ export default {
       showCelebrate: false,
       celebrateTitle: 'A new star.',
       tabs: [
-        { id: 'home', label: 'Home', icon: '✦' },
+        { id: 'home', label: 'Base', icon: '▣' },
         { id: 'spark', label: 'Spark', icon: '✶' },
         { id: 'sky', label: 'Sky', icon: '✧' },
-        { id: 'play', label: 'Play', icon: '★' },
+        { id: 'play', label: 'Games', icon: '▶' },
         { id: 'plus', label: 'Plus', icon: '+' }
       ]
     }
@@ -98,7 +98,8 @@ export default {
       this.tab = 'plus'
     },
     celebrate() {
-      this.celebrateTitle = this.view.progress.streak > 1 ? `${this.view.progress.streak}-day glow` : 'A new star.'
+      this.celebrateTitle = this.view.delveRank?.id ? `${this.view.delveRank.name} drop` : 'New star unlocked'
+      if (this.view.progress.streak > 1) this.celebrateTitle = `${this.view.progress.streak}-day streak`
       this.showCelebrate = true
     },
     onSubscribed() {

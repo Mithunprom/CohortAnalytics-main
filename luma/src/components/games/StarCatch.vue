@@ -20,13 +20,25 @@
 export default {
   name: 'StarCatch',
   emits: ['done'],
+  props: {
+    exploreXp: { type: Number, default: 0 }
+  },
   data() {
     return { stars: [], score: 0, seconds: 30, nextId: 1, timers: [] }
+  },
+  computed: {
+    speed() {
+      const xp = this.exploreXp || 0
+      if (xp >= 320) return 1.85
+      if (xp >= 140) return 1.5
+      if (xp >= 50) return 1.25
+      return 1
+    }
   },
   mounted() {
     this.spawn()
     this.timers.push(setInterval(this.tick, 1000))
-    this.timers.push(setInterval(this.spawn, 700))
+    this.timers.push(setInterval(this.spawn, Math.max(280, 700 / this.speed)))
     this.timers.push(setInterval(this.fall, 50))
   },
   unmounted() {
@@ -48,7 +60,7 @@ export default {
     fall() {
       const { h } = this.bounds()
       this.stars = this.stars
-        .map((s) => ({ ...s, y: s.y + 3 }))
+        .map((s) => ({ ...s, y: s.y + 2.6 * this.speed }))
         .filter((s) => s.y < h)
     },
     catchStar(id) {
