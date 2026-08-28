@@ -24,8 +24,8 @@
           @click="toggle(item.id)"
         >{{ item.label }}</button>
       </div>
-      <button class="btn primary wide" @click="finish">START SPARK</button>
-      <button class="btn ghost wide" @click="finish">SKIP — JUST PLAY</button>
+      <button class="btn primary wide" @click="finish('spark')">START SPARK</button>
+      <button class="btn ghost wide" @click="finish('play')">SKIP — JUST PLAY</button>
     </div>
   </section>
 </template>
@@ -58,12 +58,12 @@ export default {
         ? this.selected.filter((x) => x !== id)
         : [...this.selected, id]
     },
-    finish() {
+    finish(dest) {
       this.store.completeOnboarding({
         name: this.name.trim() || 'friend',
         intents: this.selected
       })
-      this.$emit('started')
+      this.$emit('started', dest || 'spark')
     }
   }
 }

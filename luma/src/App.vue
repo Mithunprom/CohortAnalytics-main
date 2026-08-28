@@ -9,7 +9,7 @@
           <span class="status-rank">{{ view.delveRank?.name || 'SCOUT' }} · {{ plusLabel }}</span>
         </header>
 
-        <Onboarding v-if="!view.profile.onboardingDone" @started="tab = 'spark'" />
+        <Onboarding v-if="!view.profile.onboardingDone" @started="tab = $event || 'spark'" />
 
         <main class="content" v-else>
           <HomeView v-if="tab === 'home'" @open-spark="tab = 'spark'" @open-nest="tab = 'nest'" @open-play="tab = 'play'" />
