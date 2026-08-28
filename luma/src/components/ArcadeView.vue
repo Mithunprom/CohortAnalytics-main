@@ -5,7 +5,7 @@
     <div class="card">
       <p class="tiny muted">Today’s energy</p>
       <h2 v-if="view.plus">Unlimited</h2>
-      <h2 v-else>{{ remaining }} / {{ view.limits.arcade }} plays</h2>
+      <h2 v-else>{{ remaining }} / {{ view.limits?.arcade ?? 2 }} plays</h2>
     </div>
     <div class="card stack" v-for="game in games" :key="game.id">
       <div class="row" style="justify-content: space-between;">
@@ -51,23 +51,27 @@ export default {
   computed: {
     view() { return this.game.view },
     remaining() {
-      const used = this.view.counters.arcadePlaysToday
-      return Math.max(0, this.view.limits.arcade - used)
+      const used = this.view.counters?.arcadePlaysToday || 0
+      const limit = this.view.limits?.arcade ?? 2
+      return Math.max(0, limit - used)
     },
     current() { return this.games.find((g) => g.id === this.active) || {} }
   },
   methods: {
     open(id) {
-      if (this.view.gated.arcade) {
+      if (this.view.gated?.arcade) {
         this.$emit('need-plus', 'Free fireflies get two arcade plays a day. Plus never runs out of energy.')
         return
       }
       this.active = id
     },
     finish(score) {
-      this.store.playArcade(this.active, score)
-      this.active = null
-      this.$emit('celebrated')
+      try {
+        this.store.playArcade(this.active, score)
+      } finally {
+        this.active = null
+        this.$emit('celebrated')
+      }
     }
   }
 }

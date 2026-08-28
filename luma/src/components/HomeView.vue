@@ -70,7 +70,7 @@ export default {
       if (h < 18) return 'Good afternoon'
       return 'Good evening'
     },
-    category() { return CATEGORIES[this.view.quest.category] || CATEGORIES.play },
+    category() { return CATEGORIES[this.view.quest?.category] || CATEGORIES.play },
     prettyDate() { return formatPrettyDate(this.view.today) },
     alreadyDone() { return Boolean(this.view.progress.constellation[this.view.today]) },
     lumaMood() {

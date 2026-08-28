@@ -353,13 +353,14 @@ p { margin: 0; }
 }
 .star {
   position: absolute;
-  width: 28px;
-  height: 28px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   border: 0;
   background: radial-gradient(circle, #fff6d6, var(--ember));
   box-shadow: 0 0 16px rgba(255, 224, 138, 0.8);
   cursor: pointer;
+  touch-action: manipulation;
 }
 .pads {
   display: grid;

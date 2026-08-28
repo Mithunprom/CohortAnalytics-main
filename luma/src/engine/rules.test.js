@@ -1,7 +1,9 @@
 import { defaultState, applySparkCompletion, applyReroll, applyArcadePlay, applySubscribe, isPlusActive, canCompleteSpark, canPlayArcade, canReroll, stageFromXp } from './rules.js'
 import { isYesterday, dateKey, pickIndex } from './dates.js'
 import { riddleCorrect, scrambleWord, todaysQuest } from './quests.js'
-import { describe, expect, it } from 'vitest'
+import { createStore } from './store.js'
+import { STORAGE_KEY } from './rules.js'
+import { describe, expect, it, beforeEach } from 'vitest'
 
 function stateWith(overrides = {}) {
   const s = defaultState()
@@ -123,5 +125,39 @@ describe('quests', () => {
     const scrambled = scrambleWord(word, '2026-08-28')
     expect(scrambled).not.toBe(word)
     expect([...scrambled].sort().join('')).toBe([...word].sort().join(''))
+  })
+})
+
+describe('store snapshot after mutations', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  it('keeps quest and plus flags after onboarding and a spark', () => {
+    const store = createStore()
+    store.completeOnboarding({ name: 'Mithun', intents: ['create'] })
+    let view = store.get()
+    expect(view.profile.onboardingDone).toBe(true)
+    expect(view.quest).toBeTruthy()
+    expect(view.quest.category).toBeTruthy()
+    expect(view.plus).toBe(false)
+    expect(view.gated).toBeTruthy()
+
+    const result = store.completeSpark('A tiny spell for a shorter meeting today')
+    expect(result.ok).toBe(true)
+    view = store.get()
+    expect(view.progress.streak).toBe(1)
+    expect(view.quest.title).toBeTruthy()
+    expect(view.plus).toBe(false)
+    expect(view.gated.spark).toBe(true)
+  })
+
+  it('marks plus active immediately after subscribe', () => {
+    const store = createStore()
+    store.subscribePlan('yearly')
+    const view = store.get()
+    expect(view.plus).toBe(true)
+    expect(view.subscription.plan).toBe('yearly')
+    expect(localStorage.getItem(STORAGE_KEY)).toBeTruthy()
   })
 })

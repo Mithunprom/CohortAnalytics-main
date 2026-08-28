@@ -59,6 +59,10 @@ export function stageFromXp(xp) {
   return stage
 }
 
+export function clone(value) {
+  return JSON.parse(JSON.stringify(value))
+}
+
 export function defaultState() {
   return {
     profile: {
@@ -144,7 +148,7 @@ export function canPlayArcade(state, today) {
 
 export function applySparkCompletion(state, { today, quest, answer, yesterdayFn }) {
   const isYday = yesterdayFn
-  const next = structuredClone(state)
+  const next = clone(state)
   const { sparksToday } = dailyCounters(next.progress, today)
   next.progress.lastActiveDate = today
   next.progress.sparksToday = sparksToday + 1
@@ -183,7 +187,7 @@ export function applySparkCompletion(state, { today, quest, answer, yesterdayFn 
 }
 
 export function applyReroll(state, today) {
-  const next = structuredClone(state)
+  const next = clone(state)
   const { rerollsToday } = dailyCounters(next.progress, today)
   next.progress.lastRerollDate = today
   next.progress.rerollsToday = rerollsToday + 1
@@ -192,7 +196,7 @@ export function applyReroll(state, today) {
 }
 
 export function applyArcadePlay(state, today, gameId, score) {
-  const next = structuredClone(state)
+  const next = clone(state)
   const { arcadePlaysToday } = dailyCounters(next.progress, today)
   next.progress.lastArcadeDate = today
   next.progress.arcadePlaysToday = arcadePlaysToday + 1
@@ -208,7 +212,7 @@ export function applyArcadePlay(state, today, gameId, score) {
 export function applySubscribe(state, productKey, now = new Date()) {
   const product = PRODUCTS[productKey]
   if (!product) throw new Error('Unknown product')
-  const next = structuredClone(state)
+  const next = clone(state)
   const trialEnd = new Date(now)
   trialEnd.setDate(trialEnd.getDate() + TRIAL_DAYS)
   const expires = new Date(now)
@@ -226,7 +230,7 @@ export function applySubscribe(state, productKey, now = new Date()) {
 }
 
 export function applyRestore(state, snapshot) {
-  const next = structuredClone(state)
+  const next = clone(state)
   next.subscription = { ...next.subscription, ...snapshot }
   return next
 }

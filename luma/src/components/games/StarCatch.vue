@@ -10,7 +10,7 @@
         :key="star.id"
         class="star"
         :style="{ left: star.x + 'px', top: star.y + 'px' }"
-        @click="catchStar(star.id)"
+        @pointerdown.prevent="catchStar(star.id)"
       ></button>
     </div>
   </div>
@@ -48,7 +48,7 @@ export default {
     fall() {
       const { h } = this.bounds()
       this.stars = this.stars
-        .map((s) => ({ ...s, y: s.y + 4 }))
+        .map((s) => ({ ...s, y: s.y + 3 }))
         .filter((s) => s.y < h)
     },
     catchStar(id) {
@@ -56,11 +56,13 @@ export default {
       this.score += 1
     },
     tick() {
-      this.seconds -= 1
-      if (this.seconds <= 0) {
+      if (this.seconds <= 1) {
+        this.seconds = 0
         this.timers.forEach(clearInterval)
         this.$emit('done', this.score)
+        return
       }
+      this.seconds -= 1
     }
   }
 }
