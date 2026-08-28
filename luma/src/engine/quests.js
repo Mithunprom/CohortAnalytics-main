@@ -123,7 +123,7 @@ export function todaysQuest(dateKey, offset = 0, intentBias = []) {
     ? [...QUESTS.filter((q) => intentBias.includes(q.category)), ...QUESTS]
     : QUESTS
   const index = pickIndex(`${dateKey}:${offset}:luma`, pool.length)
-  return pool[index]
+  return pool[index] || QUESTS[0]
 }
 
 export function todaysWord(dateKey) {

@@ -9,7 +9,7 @@
           <span>{{ plusLabel }}</span>
         </header>
 
-        <Onboarding v-if="!view.profile.onboardingDone" />
+        <Onboarding v-if="!view.profile.onboardingDone" @started="tab = 'spark'" />
 
         <main class="content" v-else>
           <HomeView v-if="tab === 'home'" @open-spark="tab = 'spark'" @open-nest="tab = 'nest'" />
@@ -85,7 +85,7 @@ export default {
   },
   computed: {
     view() { return this.game.view },
-    habitat() { return this.view.progress.nest.habitat },
+    habitat() { return this.view.progress?.nest?.habitat || 'night' },
     plusLabel() { return this.view.plus ? 'PLUS' : 'FREE' }
   },
   methods: {
