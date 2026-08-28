@@ -18,7 +18,8 @@ import {
   rerollLimit,
   arcadeLimit,
   habitatAllowed,
-  skinAllowed
+  skinAllowed,
+  clone
 } from './rules.js'
 import { todaysQuest } from './quests.js'
 
@@ -50,10 +51,10 @@ export function createStore() {
     const today = dateKey()
     const plus = isPlusActive(state.subscription)
     const counters = dailyCounters(state.progress, today)
-    const quest = todaysQuest(today, state.progress.questOffset || 0, state.profile.intents)
+    const quest = clone(todaysQuest(today, state.progress.questOffset || 0, state.profile.intents || []))
     const stage = stageFromXp(state.progress.xp)
     return {
-      ...state,
+      ...clone(state),
       today,
       plus,
       counters,
@@ -88,8 +89,8 @@ export function createStore() {
       state = {
         ...state,
         profile: {
-          name: name.trim(),
-          intents,
+          name: String(name || '').trim() || 'friend',
+          intents: Array.isArray(intents) ? [...intents] : [],
           onboardingDone: true,
           createdAt: new Date().toISOString()
         }
