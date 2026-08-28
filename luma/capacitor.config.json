@@ -1,0 +1,16 @@
+{
+  "appId": "app.luma.spark",
+  "appName": "Luma",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "ios": {
+    "contentInset": "automatic",
+    "preferredContentMode": "mobile"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "backgroundColor": "#0a0814"
+    }
+  }
+}
