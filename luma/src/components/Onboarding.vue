@@ -37,6 +37,7 @@ export default {
   name: 'Onboarding',
   components: { LumaCreature },
   inject: ['store'],
+  emits: ['started'],
   data() {
     return {
       step: 0,
@@ -62,6 +63,7 @@ export default {
         name: this.name.trim() || 'friend',
         intents: this.selected
       })
+      this.$emit('started')
     }
   }
 }

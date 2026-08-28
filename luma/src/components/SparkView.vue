@@ -73,7 +73,7 @@ export default {
   },
   computed: {
     view() { return this.game.view },
-    quest() { return this.view.quest },
+    quest() { return this.view.quest || { title: 'Spark', prompt: '', type: 'action', category: 'play', confirm: 'Continue' } },
     category() { return CATEGORIES[this.quest.category] || CATEGORIES.play },
     alreadyDone() { return this.view.progress.constellation[this.view.today] },
     hint() { return (this.quest.hints || [])[this.hintIndex - 1] }

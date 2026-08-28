@@ -42,7 +42,8 @@ export function createStore() {
 
   function emit() {
     save(state)
-    listeners.forEach((fn) => fn(state))
+    const view = snapshot()
+    listeners.forEach((fn) => fn(view))
   }
 
   function snapshot() {
