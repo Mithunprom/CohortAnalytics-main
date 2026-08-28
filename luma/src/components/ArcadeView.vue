@@ -66,9 +66,12 @@ export default {
       this.active = id
     },
     finish(score) {
-      this.store.playArcade(this.active, score)
-      this.active = null
-      this.$emit('celebrated')
+      try {
+        this.store.playArcade(this.active, score)
+      } finally {
+        this.active = null
+        this.$emit('celebrated')
+      }
     }
   }
 }
