@@ -5,7 +5,10 @@
   "scripts": {
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "dev": "vue-cli-service serve"
+    "dev": "vue-cli-service serve",
+    "luma": "npm --prefix luma run dev",
+    "luma:test": "npm --prefix luma test",
+    "luma:build": "npm --prefix luma run build"
   },
   "dependencies": {
     "bootstrap-vue": "^2.17.3",
