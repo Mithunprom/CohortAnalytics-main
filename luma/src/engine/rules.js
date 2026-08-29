@@ -92,7 +92,9 @@ export function defaultState() {
       productId: null,
       trialEndsAt: null,
       expiresAt: null,
-      startedAt: null
+      startedAt: null,
+      source: null,
+      transactionId: null
     },
     progress: {
       streak: 0,
@@ -271,10 +273,18 @@ export function applyExplore(state, extra = {}, today = dateKey()) {
   return next
 }
 
-export function applySubscribe(state, productKey, now = new Date()) {
+export function planFromProductId(productId) {
+  if (!productId) return null
+  if (productId === PRODUCTS.yearly.appleProductId || productId === PRODUCTS.yearly.id) return 'yearly'
+  if (productId === PRODUCTS.monthly.appleProductId || productId === PRODUCTS.monthly.id) return 'monthly'
+  return null
+}
+
+export function applySubscribe(state, productKey, now = new Date(), extras = {}) {
   const product = PRODUCTS[productKey]
   if (!product) throw new Error('Unknown product')
   const next = clone(state)
+  const alreadyPlus = isPlusActive(next.subscription, now)
   const trialEnd = new Date(now)
   trialEnd.setDate(trialEnd.getDate() + TRIAL_DAYS)
   const expires = new Date(now)
@@ -282,12 +292,14 @@ export function applySubscribe(state, productKey, now = new Date()) {
   else expires.setMonth(expires.getMonth() + 1)
   next.subscription = {
     plan: productKey,
-    productId: product.appleProductId,
-    trialEndsAt: trialEnd.toISOString(),
-    expiresAt: expires.toISOString(),
-    startedAt: now.toISOString()
+    productId: extras.productId || product.appleProductId,
+    trialEndsAt: extras.trialEndsAt || trialEnd.toISOString(),
+    expiresAt: extras.expiresAt || expires.toISOString(),
+    startedAt: extras.startedAt || now.toISOString(),
+    source: extras.source || next.subscription.source || 'demo',
+    transactionId: extras.transactionId || null
   }
-  next.progress.streakShields += 1
+  if (!alreadyPlus) next.progress.streakShields += 1
   return next
 }
 

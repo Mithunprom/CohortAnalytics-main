@@ -25,6 +25,7 @@ import {
 import { todaysQuest } from './quests.js'
 import { rankFromXp, nextRank, dailyBiome, dailySeed } from './delve.js'
 import { todaysContract, contractProgress } from './contracts.js'
+import { purchaseMode, purchasePlan as checkoutPlan, restorePurchases as restoreNative } from './iap.js'
 
 function load() {
   try {
@@ -169,7 +170,34 @@ export function createStore() {
       state = applySubscribe(state, productKey)
       emit()
     },
-    restorePurchases() {
+    async purchasePlan(productKey) {
+      const result = await checkoutPlan(productKey)
+      if (!result.ok) return result
+      state = applySubscribe(state, result.plan, new Date(), {
+        source: result.mode,
+        productId: result.productId,
+        transactionId: result.transactionId,
+        expiresAt: result.expiresAt || undefined
+      })
+      if (result.mode === 'demo') {
+        localStorage.setItem(`${STORAGE_KEY}.receipt`, JSON.stringify(state.subscription))
+      }
+      emit()
+      return result
+    },
+    async restorePurchases() {
+      if (purchaseMode() === 'storekit') {
+        const result = await restoreNative()
+        if (!result.ok) return result
+        state = applySubscribe(state, result.plan, new Date(), {
+          source: 'storekit',
+          productId: result.productId,
+          transactionId: result.transactionId,
+          expiresAt: result.expiresAt || undefined
+        })
+        emit()
+        return result
+      }
       try {
         const raw = localStorage.getItem(`${STORAGE_KEY}.receipt`)
         if (!raw) return { ok: false, reason: 'none' }

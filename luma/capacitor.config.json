@@ -5,12 +5,20 @@
   "bundledWebRuntime": false,
   "ios": {
     "contentInset": "automatic",
-    "preferredContentMode": "mobile"
+    "preferredContentMode": "mobile",
+    "scheme": "Luma",
+    "limitsNavigationsToAppBoundDomains": false
   },
   "plugins": {
     "SplashScreen": {
+      "launchShowDuration": 600,
       "launchAutoHide": true,
-      "backgroundColor": "#0a0814"
+      "backgroundColor": "#05040c",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#05040c"
     }
   }
 }

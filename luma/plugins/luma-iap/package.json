@@ -1,0 +1,21 @@
+{
+  "name": "luma-iap",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "ios",
+    "index.js",
+    "Package.swift",
+    "LumaIap.podspec"
+  ],
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    }
+  },
+  "peerDependencies": {
+    "@capacitor/core": ">=7.0.0"
+  }
+}

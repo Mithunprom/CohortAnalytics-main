@@ -1,15 +1,21 @@
 {
-  "name": "Luma — Daily Sparks",
+  "name": "Luma",
   "short_name": "Luma",
-  "description": "A cozy firefly companion with daily sparks, mini-games, and a growing constellation.",
-  "start_url": "/",
+  "description": "Daily sparks, Rift Delve cave raids, and a firefly companion. Rank is earned. Plus only buys energy.",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#0a0814",
-  "theme_color": "#0a0814",
+  "background_color": "#05040c",
+  "theme_color": "#05040c",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "./apple-touch-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"

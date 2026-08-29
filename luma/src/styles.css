@@ -174,6 +174,27 @@ p { margin: 0; }
 .tiny { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
 .small { font-size: 13.5px; line-height: 1.35; }
 .center { text-align: center; }
+.danger { color: var(--danger); }
+.link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--ember);
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+.plan:disabled { opacity: 0.55; cursor: wait; }
+.legal-sheet { max-height: 70dvh; overflow: auto; }
+.legal-copy {
+  white-space: pre-wrap;
+  font-family: var(--font);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--muted);
+  margin: 0;
+}
 
 .card {
   background: var(--card);
@@ -206,6 +227,7 @@ p { margin: 0; }
   border: 1px solid var(--stroke);
 }
 .btn.wide { width: 100%; }
+a.btn { text-decoration: none; display: inline-block; text-align: center; box-sizing: border-box; }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .chip {

@@ -1,4 +1,4 @@
-import { defaultState, applySparkCompletion, applyReroll, applyArcadePlay, applySubscribe, applyExplore, isPlusActive, canCompleteSpark, canPlayArcade, canReroll, stageFromXp } from './rules.js'
+import { defaultState, applySparkCompletion, applyReroll, applyArcadePlay, applySubscribe, applyExplore, isPlusActive, canCompleteSpark, canPlayArcade, canReroll, stageFromXp, planFromProductId, PRODUCTS } from './rules.js'
 import { isYesterday, dateKey, pickIndex, addDays } from './dates.js'
 import { riddleCorrect, scrambleWord, todaysQuest } from './quests.js'
 import { createStore } from './store.js'
@@ -116,6 +116,20 @@ describe('subscription and limits', () => {
     expect(rolled.progress.questOffset).toBe(1)
   })
 
+  it('maps Apple product ids onto Plus plans', () => {
+    expect(planFromProductId(PRODUCTS.monthly.appleProductId)).toBe('monthly')
+    expect(planFromProductId(PRODUCTS.yearly.appleProductId)).toBe('yearly')
+    expect(planFromProductId('unknown')).toBe(null)
+  })
+
+  it('does not stack streak shields when Plus is already active', () => {
+    const first = applySubscribe(defaultState(), 'monthly')
+    expect(first.progress.streakShields).toBe(1)
+    const second = applySubscribe(first, 'yearly')
+    expect(second.progress.streakShields).toBe(1)
+    expect(second.subscription.plan).toBe('yearly')
+  })
+
   it('caps free arcade energy at two plays', () => {
     let s = defaultState()
     expect(canPlayArcade(s, '2026-08-28')).toBe(true)
@@ -209,6 +223,17 @@ describe('store snapshot after mutations', () => {
     expect(view.plus).toBe(true)
     expect(view.subscription.plan).toBe('yearly')
     expect(localStorage.getItem(STORAGE_KEY)).toBeTruthy()
+  })
+
+  it('demo purchasePlan writes a local Plus receipt', async () => {
+    const store = createStore()
+    const result = await store.purchasePlan('monthly')
+    expect(result.ok).toBe(true)
+    expect(result.mode).toBe('demo')
+    expect(store.get().plus).toBe(true)
+    expect(store.get().subscription.source).toBe('demo')
+    const restored = await store.restorePurchases()
+    expect(restored.ok).toBe(true)
   })
 })
 

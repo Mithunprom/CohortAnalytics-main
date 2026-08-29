@@ -2,6 +2,12 @@
 node_modules
 /dist
 luma/dist
+luma/ios/App/Pods
+luma/ios/App/App/public
+luma/ios/App/build
+luma/ios/DerivedData
+*.xcuserstate
+xcuserdata
 
 
 # local env files
