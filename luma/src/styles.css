@@ -186,8 +186,14 @@ p { margin: 0; }
   text-transform: inherit;
 }
 .plan:disabled { opacity: 0.55; cursor: wait; }
-.legal-sheet { max-height: 70dvh; overflow: auto; }
 .legal-copy {
+  white-space: pre-wrap;
+  font-family: var(--font);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--muted);
+  margin: 0;
+}
   white-space: pre-wrap;
   font-family: var(--font);
   font-size: 13.5px;

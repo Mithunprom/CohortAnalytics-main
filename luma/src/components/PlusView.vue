@@ -1,5 +1,11 @@
 <template>
   <section class="stack">
+    <template v-if="legal">
+      <p class="tiny neon-text">{{ legal === 'privacy' ? 'PRIVACY' : 'TERMS' }}</p>
+      <pre class="legal-copy">{{ legal === 'privacy' ? privacy : terms }}</pre>
+      <button class="btn primary wide" @click="legal = null">GOT IT</button>
+    </template>
+    <template v-else>
     <p class="tiny neon-text">PLUS PASS</p>
     <h1>Never run dry.</h1>
     <p class="muted">Unlimited runs. That’s the whole pitch. No ads, no loot boxes, nothing that makes you stronger than the person next to you.</p>
@@ -47,14 +53,7 @@
       <button class="link" type="button" @click="legal = 'terms'">Terms</button>
       · No tracking of kids · Health is not medical advice
     </p>
-
-    <div class="overlay" v-if="legal" @click.self="legal = null">
-      <div class="sheet stack legal-sheet">
-        <p class="tiny neon-text">{{ legal === 'privacy' ? 'PRIVACY' : 'TERMS' }}</p>
-        <pre class="legal-copy">{{ legal === 'privacy' ? privacy : terms }}</pre>
-        <button class="btn primary wide" @click="legal = null">GOT IT</button>
-      </div>
-    </div>
+    </template>
   </section>
 </template>
 
